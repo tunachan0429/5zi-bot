@@ -1,3 +1,9 @@
+// 同梱のFFmpegバイナリを使う（システムへのFFmpegインストールを不要にする）
+const ffmpegStatic = require('ffmpeg-static');
+if (ffmpegStatic) {
+  process.env.FFMPEG_PATH = ffmpegStatic;
+}
+
 const {
   joinVoiceChannel,
   createAudioPlayer,

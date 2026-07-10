@@ -10,7 +10,9 @@
 - `.env` が無ければテンプレートから作成し、メモ帳で開きます（トークンを入力して保存）
 - スラッシュコマンドの登録も選べます
 
-事前に [Node.js](https://nodejs.org/) と FFmpeg のインストールが必要です（下記参照）。
+事前に必要なのは [Node.js](https://nodejs.org/) のインストールだけです。
+FFmpeg は同梱（`ffmpeg-static`）、音声ライブラリもビルド不要（`opusscript`）なので、
+Visual Studio や FFmpeg を別途インストールする必要はありません。
 
 ## 機能
 
@@ -22,8 +24,10 @@
 ## 必要条件
 
 - Node.js 18以上
-- FFmpeg（音声再生に必要）
 - Discord Bot Token
+
+> FFmpeg は `ffmpeg-static` として自動的に同梱されるため、別途インストール不要です。
+> 音声エンコードも `opusscript`（ピュアJavaScript）を使うため、C++ビルドツール（Visual Studio）は不要です。
 
 ## セットアップ
 
@@ -33,22 +37,7 @@
 npm install
 ```
 
-### 2. FFmpegのインストール
-
-**Ubuntu/Debian:**
-```bash
-sudo apt install ffmpeg
-```
-
-**macOS:**
-```bash
-brew install ffmpeg
-```
-
-**Windows:**
-[FFmpeg公式サイト](https://ffmpeg.org/download.html) からダウンロードし、PATHに追加してください。
-
-### 3. 環境変数の設定
+### 2. 環境変数の設定
 
 `.env.example` をコピーして `.env` を作成し、値を設定します。
 
@@ -62,7 +51,7 @@ CLIENT_ID=あなたのアプリケーションID
 GUILD_ID=開発用サーバーID（省略でグローバル登録）
 ```
 
-### 4. Discord Developer Portal の設定
+### 3. Discord Developer Portal の設定
 
 1. [Discord Developer Portal](https://discord.com/developers/applications) でアプリケーションを作成
 2. Bot セクションで Bot Token を取得
@@ -71,7 +60,7 @@ GUILD_ID=開発用サーバーID（省略でグローバル登録）
    - Bot Permissions: `Connect`, `Speak`, `Use Voice Activity`
 4. 生成されたURLでBotをサーバーに招待
 
-### 5. 音声ファイルの配置
+### 4. 音声ファイルの配置
 
 `audio/` ディレクトリに再生したい音声ファイルを配置します。
 
@@ -84,13 +73,13 @@ audio/
 └── notification.ogg
 ```
 
-### 6. スラッシュコマンドの登録
+### 5. スラッシュコマンドの登録
 
 ```bash
 npm run deploy
 ```
 
-### 7. Botの起動
+### 6. Botの起動
 
 ```bash
 npm start
@@ -150,6 +139,7 @@ npm start
 
 ## トラブルシューティング
 
-- **音声が再生されない**: FFmpegがインストールされているか確認してください
-- **Botが接続できない**: Botの権限設定を確認してください
+- **音声が再生されない**: 音声ファイルが `audio/` フォルダにあるか、ファイル名が正しいか確認してください
+- **`npm install` で opus のビルドエラーが出る**: 最新版はビルド不要の `opusscript` を使用します。古い `node_modules` が残っている場合は、フォルダごと削除してから再度 `npm install` してください
+- **Botが接続できない**: Botの権限（Connect / Speak）設定を確認してください
 - **コマンドが表示されない**: `npm run deploy` を実行してください
