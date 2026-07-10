@@ -29,6 +29,11 @@ const activeJobs = new Map();
  */
 function loadSchedules() {
   try {
+    // ファイルがまだ無ければ空の状態で作成する（初回起動時など）
+    if (!fs.existsSync(SCHEDULES_PATH)) {
+      saveSchedules([]);
+      return [];
+    }
     const data = fs.readFileSync(SCHEDULES_PATH, 'utf-8');
     return JSON.parse(data);
   } catch (error) {
