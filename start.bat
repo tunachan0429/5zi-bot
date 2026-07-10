@@ -38,16 +38,21 @@ if not exist ".env" (
 )
 
 REM --- 依存パッケージのインストール確認 ---
-if not exist "node_modules" (
-    echo 初回起動のため、依存パッケージをインストールします...
-    echo （少し時間がかかります）
+REM node_modules が無い、または dotenv が入っていなければインストールする
+if not exist "node_modules\dotenv" (
+    echo 依存パッケージをインストールします...
+    echo （初回は少し時間がかかります）
     echo.
     call npm install
     if %errorlevel% neq 0 (
+        echo.
         echo [エラー] npm install に失敗しました。
+        echo インターネット接続と Node.js のインストールを確認してください。
         pause
         exit /b 1
     )
+    echo.
+    echo インストール完了！
     echo.
 )
 
