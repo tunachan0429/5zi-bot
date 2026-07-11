@@ -1,8 +1,14 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits, Collection, Events } = require('discord.js');
+const { generateDependencyReport } = require('@discordjs/voice');
 const { startAllSchedules } = require('./scheduler');
 const fs = require('fs');
 const path = require('path');
+
+// 起動時に音声関連ライブラリの検出状況を表示（トラブル診断用）
+console.log('===== 音声ライブラリ検出状況 =====');
+console.log(generateDependencyReport());
+console.log('==================================');
 
 // Discordクライアントの作成
 const client = new Client({
@@ -66,10 +72,25 @@ process.on('unhandledRejection', (error) => {
 });
 
 // ログイン
-const token = process.env.DISCORD_TOKEN;
-if (!token) {
-  console.error('[Bot] エラー: DISCORD_TOKEN が設定されていません。.envファイルを確認してください。');
-  process.exit(1);
+async function main() {
+  const token = process.env.DISCORD_TOKEN;
+  if (!token) {
+    console.error('[Bot] エラー: DISCORD_TOKEN が設定されていません。.envファイルを確認してください。');
+    process.exit(1);
+  }
+
+  // 暗号化ライブラリ(libsodium)を事前に初期化しておく（音声接続の安定化）
+  try {
+    const sodium = require('libsodium-wrappers');
+    if (sodium && sodium.ready) {
+      await sodium.ready;
+      console.log('[Bot] 暗号化ライブラリ(libsodium)の初期化が完了しました');
+    }
+  } catch (e) {
+    console.warn('[Bot] libsodiumの初期化をスキップしました（別の暗号化ライブラリを使用）:', e.message);
+  }
+
+  await client.login(token);
 }
 
-client.login(token);
+main();

@@ -39,6 +39,11 @@ async function playAudioInChannel(channel, audioFile) {
     adapterCreator: channel.guild.voiceAdapterCreator,
   });
 
+  // 接続状態の変化をログ出力（どこで止まるかを診断するため）
+  connection.on('stateChange', (oldState, newState) => {
+    console.log(`[Voice] 接続状態: ${oldState.status} -> ${newState.status}`);
+  });
+
   try {
     // 接続が確立されるまで待機（最大30秒）
     await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
@@ -70,7 +75,15 @@ async function playAudioInChannel(channel, audioFile) {
       });
     });
   } catch (error) {
-    console.error(`[Voice] エラーが発生しました:`, error);
+    if (error && (error.code === 'ABORT_ERR' || error.name === 'AbortError')) {
+      console.error('[Voice] 30秒以内にVCへ接続できませんでした（タイムアウト）。');
+      console.error('        考えられる原因:');
+      console.error('        1) 暗号化ライブラリ(libsodium-wrappers)が検出されていない');
+      console.error('        2) ファイアウォール/アンチウイルスがUDP通信をブロックしている');
+      console.error('        3) BotにVCへの接続(Connect)権限が無い');
+    } else {
+      console.error('[Voice] エラーが発生しました:', error);
+    }
   } finally {
     // 接続を切断
     connection.destroy();
